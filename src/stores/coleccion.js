@@ -6,19 +6,32 @@ export const useColeccionStore = defineStore('coleccion', () => {
   const pokemons = ref([])
   const loading = ref(false)
   const error = ref(null)
+  const userActiveId = ref(null)
 
-  async function cargarColeccion() {
+  const cargarColeccion = async (userId) => {
+    if (!userId) {
+      pokemons.splice(0, pokemons.length)
+      return
+    }
     loading.value = true
     try {
-      // Carga en dos partes para evitar el límite de 1000
-      let { data: pokemonsData1 } = await supabase.from('pokemon').select('*').order('numero', { ascending: true }).range(0, 999)
-      let { data: pokemonsData2 } = await supabase.from('pokemon').select('*').order('numero', { ascending: true }).range(1000, 1024)
-      let pokemonsData = [...(pokemonsData1 || []), ...(pokemonsData2 || [])]
-      let { data: coleccion } = await supabase.from('coleccion').select('*')
-      pokemons.value = pokemonsData.map(p => {
-        const adquirida = coleccion?.find(c => c.pokemon_numero === p.numero)?.adquirida || false
-        return { ...p, adquirida }
-      })
+      const [{ data: pokemonsData1 }, { data: pokemonsData2 }] = await Promise.all([
+        supabase.from('pokemon').select('*').order('numero', { ascending: true }).range(0, 999),
+        supabase.from('pokemon').select('*').order('numero', { ascending: true }).range(1000, 1024)
+      ])
+      const pokemonsData = [...(pokemonsData1 || []), ...(pokemonsData2 || [])]
+
+      const { data: coleccion } = await supabase
+        .from('coleccion')
+        .select('*')
+        .eq('user_id', userId)
+
+      const adquiridosSet = new Set(coleccion?.map(c => c.pokemon_numero))
+      const nuevosPokemons = pokemonsData.map(p => ({
+        ...p,
+        adquirida: adquiridosSet.has(p.numero)
+      }))
+      pokemons.value =nuevosPokemons
     } catch (e) {
       error.value = e.message
     } finally {
@@ -26,16 +39,27 @@ export const useColeccionStore = defineStore('coleccion', () => {
     }
   }
 
-  async function marcarAdquirida(pokemon) {
-    if (pokemon.adquirida) return
-    await supabase.from('coleccion').upsert({ pokemon_numero: pokemon.numero, adquirida: true })
+  const marcarAdquirida = async (pokemon, userId) => {
+    console.log(pokemon, userId)
+    if (pokemon.adquirida || !userId) return
+    await supabase.from('coleccion').upsert({
+      pokemon_numero: pokemon.numero,
+      adquirida: true,
+      user_id: userId
+    })
     pokemon.adquirida = true
   }
 
-  async function eliminarDeColeccion(pokemon) {
-    await supabase.from('coleccion').delete().eq('pokemon_numero', pokemon.numero)
+  const eliminarDeColeccion = async (pokemon, userId) => {
+    await supabase
+      .from('coleccion')
+      .delete()
+      .eq('pokemon_numero', pokemon.numero)
+      .eq('user_id', userId)
     pokemon.adquirida = false
   }
 
+
   return { pokemons, loading, error, cargarColeccion, marcarAdquirida, eliminarDeColeccion }
+
 })

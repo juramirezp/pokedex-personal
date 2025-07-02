@@ -2,6 +2,21 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useColeccionStore } from './stores/coleccion.js'
 import PokemonCard from './components/PokemonCard.vue'
+import Login from './components/Login.vue'
+import { supabase } from './main.js'
+
+const user = ref(null)
+
+// Detectar cambios de sesión
+detectarSesion()
+
+function detectarSesion() {
+  user.value = supabase.auth.user ? supabase.auth.user() : null
+  supabase.auth.onAuthStateChange((_event, session) => {
+    user.value = session?.user || null
+  })
+}
+
 
 const buscador = ref('')
 const resultadoBusqueda = ref(null)
@@ -9,6 +24,12 @@ const buscando = ref(false)
 const totalPokemons = 1025
 
 const coleccion = useColeccionStore()
+
+watch(user, (nuevoUser) => {
+  coleccion.userActiveId = nuevoUser?.id
+  if(coleccion.pokemons.length <1)
+  coleccion.cargarColeccion(nuevoUser?.id)
+})
 
 // Filtros
 const filtro = ref('todos')
@@ -22,7 +43,6 @@ function clickFuera(e) {
 }
 onMounted(() => {
   document.addEventListener('click', clickFuera)
-  coleccion.cargarColeccion()
 })
 onBeforeUnmount(() => {
   document.removeEventListener('click', clickFuera)
@@ -55,7 +75,6 @@ const buscar = () => {
     buscando.value = false
     return
   }
-  console.log(coleccion.pokemons)
   const poke = coleccion.pokemons.find(p => p.numero.toString() === valor)
   resultadoBusqueda.value = poke || false
   buscando.value = false
@@ -70,11 +89,17 @@ watch(buscador, (nuevo) => {
 })
 
 const marcarAdquirida = async (pokemon) => {
-  await coleccion.marcarAdquirida(pokemon)
+  await coleccion.marcarAdquirida(pokemon, coleccion.userActiveId)
+}
+function logout() {
+  supabase.auth.signOut()
 }
 </script>
 
 <template>
+  <Login v-if="!user" />
+  <div v-else>
+    <button class="logout-btn" @click="logout">Cerrar sesión</button>
   <div class="app-bg app-flex app-padding">
     <!-- Header -->
     <header class="header-container">
@@ -135,6 +160,7 @@ const marcarAdquirida = async (pokemon) => {
     <div v-if="coleccion.loading" class="loader-overlay">
       <div class="loader-box">Cargando colección...</div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -368,6 +394,25 @@ const marcarAdquirida = async (pokemon) => {
 }
 .opacity-70 {
   opacity: 0.7;
+}
+.logout-btn {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  background: #e11d48;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 0.98rem;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: background 0.15s;
+}
+.logout-btn:hover {
+  background: #b91c1c;
 }
 </style>
 

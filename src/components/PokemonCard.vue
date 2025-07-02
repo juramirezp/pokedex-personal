@@ -37,12 +37,12 @@ function showToast(msg) {
 }
 
 async function handleRegistrar() {
-  await store.marcarAdquirida(props.pokemon)
+  await store.marcarAdquirida(props.pokemon, store.userActiveId)
   showToast('¡Registrado!')
 }
 
 async function handleEliminar() {
-  await store.eliminarDeColeccion(props.pokemon)
+  await store.eliminarDeColeccion(props.pokemon, store.userActiveId)
   showToast('Eliminado de tu colección')
 }
 </script>
