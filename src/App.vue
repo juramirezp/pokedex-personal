@@ -52,6 +52,14 @@ const adquiridos = computed(() => coleccion.pokemons.filter(p => p.adquirida))
 const porcentaje = computed(() => ((adquiridos.value.length / totalPokemons) * 100).toFixed(1))
 const faltantes = computed(() => totalPokemons - adquiridos.value.length)
 
+const faltantesPokemons = computed(() => coleccion.pokemons.filter(p => !p.adquirida))
+
+const copiarFaltantes = async () => {
+  const texto = faltantesPokemons.value.map(p => `- ${p.numero} ${p.nombre}`).join('\n')
+  await navigator.clipboard.writeText(texto)
+  alert('¡Listado copiado al portapapeles!')
+}
+
 const pokemonsFiltrados = computed(() => {
   let base = coleccion.pokemons
   if (filtro.value === 'adquiridos') base = base.filter(p => p.adquirida)
@@ -116,6 +124,11 @@ function logout() {
         </div>
       </div>
     </header>
+
+    <!-- Botón copiar faltantes -->
+    <div style="width:100%;text-align:right;margin-bottom:10px;" v-if="faltantesPokemons.length">
+      <button class="btn-copiar" @click="copiarFaltantes">Copiar faltantes</button>
+    </div>
 
     <!-- Buscador y Filtros -->
     <div class="buscador-filtros">
@@ -395,6 +408,22 @@ function logout() {
 .opacity-70 {
   opacity: 0.7;
 }
+.btn-copiar {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 16px;
+  font-size: 0.98rem;
+  font-family: 'Work Sans', sans-serif;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.15s;
+}
+.btn-copiar:hover {
+  background: #1d4ed8;
+}
+
 .logout-btn {
   position: fixed;
   top: 18px;
