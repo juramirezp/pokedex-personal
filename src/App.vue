@@ -56,8 +56,26 @@ const faltantesPokemons = computed(() => coleccion.pokemons.filter(p => !p.adqui
 
 const copiarFaltantes = async () => {
   const texto = faltantesPokemons.value.map(p => `- ${p.numero} ${p.nombre}`).join('\n')
-  await navigator.clipboard.writeText(texto)
-  alert('¡Listado copiado al portapapeles!')
+  try {
+    await navigator.clipboard.writeText(texto)
+    alert('¡Listado copiado al portapapeles!')
+  } catch (e) {
+    // Fallback para móviles y navegadores antiguos
+    const textarea = document.createElement('textarea')
+    textarea.value = texto
+    textarea.setAttribute('readonly', '')
+    textarea.style.position = 'absolute'
+    textarea.style.left = '-9999px'
+    document.body.appendChild(textarea)
+    textarea.select()
+    try {
+      document.execCommand('copy')
+      alert('¡Listado copiado al portapapeles!')
+    } catch (err) {
+      alert('No se pudo copiar automáticamente. Selecciona y copia manualmente:\n\n' + texto)
+    }
+    document.body.removeChild(textarea)
+  }
 }
 
 const pokemonsFiltrados = computed(() => {
