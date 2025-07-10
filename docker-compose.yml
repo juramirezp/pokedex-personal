@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  pokedex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pokedex
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pokedex.rule=Host(`pokedex.server-fikalab.cl`)"
+      - "traefik.http.routers.pokedex.entrypoints=websecure"
+      - "traefik.http.routers.pokedex.tls=true"
+      - "traefik.http.services.pokedex.loadbalancer.server.port=80"

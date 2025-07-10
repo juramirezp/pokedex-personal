@@ -16,13 +16,13 @@ export const useColeccionStore = defineStore('coleccion', () => {
     loading.value = true
     try {
       const [{ data: pokemonsData1 }, { data: pokemonsData2 }] = await Promise.all([
-        supabase.from('pokemon').select('*').order('numero', { ascending: true }).range(0, 999),
-        supabase.from('pokemon').select('*').order('numero', { ascending: true }).range(1000, 1024)
+        supabase.from('pokedex_pokemon').select('*').order('numero', { ascending: true }).range(0, 999),
+        supabase.from('pokedex_pokemon').select('*').order('numero', { ascending: true }).range(1000, 1024)
       ])
       const pokemonsData = [...(pokemonsData1 || []), ...(pokemonsData2 || [])]
 
       const { data: coleccion } = await supabase
-        .from('coleccion')
+        .from('pokedex_coleccion')
         .select('*')
         .eq('user_id', userId)
 
@@ -42,7 +42,7 @@ export const useColeccionStore = defineStore('coleccion', () => {
   const marcarAdquirida = async (pokemon, userId) => {
     console.log(pokemon, userId)
     if (pokemon.adquirida || !userId) return
-    await supabase.from('coleccion').upsert({
+    await supabase.from('pokedex_coleccion').upsert({
       pokemon_numero: pokemon.numero,
       adquirida: true,
       user_id: userId
@@ -52,7 +52,7 @@ export const useColeccionStore = defineStore('coleccion', () => {
 
   const eliminarDeColeccion = async (pokemon, userId) => {
     await supabase
-      .from('coleccion')
+      .from('pokedex_coleccion')
       .delete()
       .eq('pokemon_numero', pokemon.numero)
       .eq('user_id', userId)
