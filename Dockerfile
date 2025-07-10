@@ -8,8 +8,27 @@ COPY package*.json ./
 # Instalar dependencias
 RUN npm ci
 
+# Copiar el archivo .env.docker como .env para la construcción
+COPY .env.docker .env
+
 # Copiar el resto de archivos
 COPY . .
+
+# Configurar ARGs para las variables de entorno
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+
+# Reemplazar los valores en el archivo .env
+RUN if [ -n "$VITE_SUPABASE_URL" ]; then \
+    sed -i "s|VITE_SUPABASE_URL=placeholder_will_be_replaced_during_build|VITE_SUPABASE_URL=$VITE_SUPABASE_URL|g" .env; \
+    fi && \
+    if [ -n "$VITE_SUPABASE_ANON_KEY" ]; then \
+    sed -i "s|VITE_SUPABASE_ANON_KEY=placeholder_will_be_replaced_during_build|VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY|g" .env; \
+    fi
+
+# Establecer variables de entorno para la compilación
+ENV VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+ENV VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
 
 # Construir la aplicación
 RUN npm run build

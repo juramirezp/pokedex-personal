@@ -39,11 +39,14 @@ La aplicación requiere las siguientes variables de entorno:
 
 4. **Configurar variables de entorno**
    - Agrega las variables de entorno necesarias:
-     - `VITE_SUPABASE_URL`
-     - `VITE_SUPABASE_ANON_KEY`
+     - `VITE_SUPABASE_URL` = `http://supabasekong-sws4s8k4kogoso4gkwg0gscw.31.97.147.171.sslip.io` (o la URL correcta de tu instancia de Supabase)
+     - `VITE_SUPABASE_ANON_KEY` = `tu_clave_anónima_de_supabase`
+   - **IMPORTANTE**: Asegúrate de que estas variables estén disponibles durante la fase de construcción (build)
+   - En Coolify, ve a la sección "Environment Variables" y marca la opción "Build-time variables" para ambas variables
 
 5. **Iniciar el despliegue**
    - Haz clic en "Deploy"
+   - Asegúrate de que la opción "Build from source" esté seleccionada para que se utilicen las variables de entorno durante la construcción
 
 ## Verificación del despliegue
 
@@ -55,11 +58,39 @@ https://pokedex.server-fikalab.cl
 
 ## Solución de problemas
 
-Si encuentras problemas durante el despliegue:
+### Error: "supabaseUrl is required"
+
+Si al visitar el sitio ves una página en blanco y en la consola del navegador aparece el error:
+
+```
+Uncaught Error: supabaseUrl is required.
+at new Rd (index-XXX.js:XX:XXXXX)
+```
+
+Este error indica que las variables de entorno de Supabase no se están incluyendo correctamente durante la fase de construcción. Para solucionarlo:
+
+1. **Asegúrate de que las variables de entorno estén configuradas como variables de construcción (build-time variables) en Coolify**:
+   - Ve a tu proyecto en Coolify
+   - Navega a la sección "Environment Variables"
+   - Marca la opción "Build-time variables" para `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`
+   - Guarda los cambios
+
+2. **Reconstruye la aplicación**:
+   - Haz clic en "Rebuild" en Coolify
+   - Asegúrate de que la opción "Build from source" esté seleccionada
+
+3. **Verifica los logs de construcción**:
+   - Durante la construcción, deberías ver que las variables de entorno se están utilizando
+   - Busca mensajes relacionados con Vite y las variables de entorno
+
+### Otros problemas comunes
+
+Si encuentras otros problemas durante el despliegue:
 
 1. Verifica los logs de Coolify para identificar errores
 2. Asegúrate de que las variables de entorno estén correctamente configuradas
 3. Verifica que el dominio `pokedex.server-fikalab.cl` esté correctamente configurado en tu DNS
+4. Comprueba que la configuración de Traefik en Coolify sea compatible con las etiquetas definidas en el docker-compose.yml
 
 ## Mantenimiento
 

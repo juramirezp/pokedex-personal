@@ -5,11 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
     container_name: pokedex
     restart: unless-stopped
+    # Las variables de entorno en tiempo de ejecución no son necesarias para una aplicación Vue compilada
+    # pero las mantenemos por si se necesitan para alguna funcionalidad futura
     environment:
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pokedex.rule=Host(`pokedex.server-fikalab.cl`)"

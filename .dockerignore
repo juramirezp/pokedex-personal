@@ -6,8 +6,8 @@ yarn-error.log
 .github
 .gitignore
 .env
-.env.*
-!.env.example
+!.env.docker
+!.env.production
 dist
 .vscode
 .idea
