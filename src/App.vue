@@ -137,7 +137,7 @@ function logout() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="min-h-screen bg-gray-100 dark:bg-gray-900 main">
     <Login v-if="!user" />
     <div v-else>
       <button class="logout-btn desktop-only" @click="logout">Cerrar sesión</button>
@@ -298,10 +298,20 @@ function logout() {
         </button>
       </div>
     </div>
+    <span class="version">v1.1</span>
   </div>
 </template>
 
 <style scoped>
+.main{
+  position: relative;
+}
+.version{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 12px;
+}
 .app-flex {
   display: flex;
   flex-direction: column;
