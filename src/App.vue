@@ -131,6 +131,10 @@ watch(buscador, (nuevo) => {
 const marcarAdquirida = async (pokemon) => {
   await coleccion.marcarAdquirida(pokemon, coleccion.userActiveId);
 };
+
+const eliminarDeColeccion = async (pokemon) => {
+  await coleccion.eliminarDeColeccion(pokemon, coleccion.userActiveId);
+};
 function logout() {
   supabase.auth.signOut();
 }
@@ -144,6 +148,20 @@ function manejarTeclas(event) {
     if (resultadoBusqueda.value && !resultadoBusqueda.value.adquirida) {
       marcarAdquirida(resultadoBusqueda.value);
     }
+  }
+  // Si se presiona la tecla '-'
+  else if (event.key === '-') {
+    event.preventDefault(); // Prevenir que el símbolo '-' aparezca en el campo
+    
+    // Si hay un único resultado de búsqueda y está adquirido
+    if (resultadoBusqueda.value && resultadoBusqueda.value.adquirida) {
+      eliminarDeColeccion(resultadoBusqueda.value);
+    }
+  }
+  // Si se presiona la tecla '.'
+  else if (event.key === '.') {
+    event.preventDefault(); // Prevenir que el símbolo '.' aparezca en el campo
+    buscador.value = ''; // Limpiar el cuadro de búsqueda
   }
 }
 </script>
@@ -311,7 +329,7 @@ function manejarTeclas(event) {
         </button>
       </div>
     </div>
-    <span class="version">v1.3</span>
+    <span class="version">v1.5</span>
   </div>
 </template>
 
