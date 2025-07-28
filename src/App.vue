@@ -134,6 +134,18 @@ const marcarAdquirida = async (pokemon) => {
 function logout() {
   supabase.auth.signOut();
 }
+
+function manejarTeclas(event) {
+  // Si se presiona la tecla '+'
+  if (event.key === '+') {
+    event.preventDefault(); // Prevenir que el símbolo '+' aparezca en el campo
+    
+    // Si hay un único resultado de búsqueda y no está adquirido
+    if (resultadoBusqueda.value && !resultadoBusqueda.value.adquirida) {
+      marcarAdquirida(resultadoBusqueda.value);
+    }
+  }
+}
 </script>
 
 <template>
@@ -190,6 +202,7 @@ function logout() {
             max="1025"
             placeholder="Buscar por número..."
             class="input-buscador"
+            @keydown="manejarTeclas"
           />
           <div class="filtros-dropdown" ref="filtroRef">
             <button
@@ -298,7 +311,7 @@ function logout() {
         </button>
       </div>
     </div>
-    <span class="version">v1.2</span>
+    <span class="version">v1.3</span>
   </div>
 </template>
 

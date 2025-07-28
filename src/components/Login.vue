@@ -40,9 +40,14 @@ async function loginWithGoogle() {
   error.value = ''
   const redirectTo = window.location.origin;
   console.log(redirectTo)
-  const { error: loginError } = await supabase.auth.signInWithOAuth({ provider: 'google', options: {
-    redirectTo: `${redirectTo}/`
-  } })
+  const { error: loginError } = await supabase.auth.signInWithOAuth(
+    { 
+      provider: 'google', 
+      options: {
+        redirectTo: `${redirectTo}`
+      } 
+    }
+  )
   if (loginError) error.value = 'Error al iniciar sesión con Google.'
   loading.value = false
 }
